@@ -13,10 +13,15 @@ COPY . .
 
 RUN npm run build --prod
 
-FROM nginx:stable-alpine3.23
+FROM node:lts-alpine3.23
 
-COPY --from=ngbuild /app/dist/Frontend/browser /usr/share/nginx/html
+RUN npm install --global serve
+
+WORKDIR /app
+
+COPY --from=ngbuild /app/dist/Frontend/browser /app
+
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["serve", "-s", "/app" ,"-p", "80"]
