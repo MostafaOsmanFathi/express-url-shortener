@@ -1,7 +1,8 @@
 FROM node:lts-alpine3.23
 
+LABEL authors="MostafaOsman"
 LABEL maintainer="mostafa.osman.fathi@gmail.com"
-LABEL desc="backend microservice container for express-url-shortener"
+LABEL desc="Backend microservice container for express-url-shortener web app"
 
 WORKDIR /app
 

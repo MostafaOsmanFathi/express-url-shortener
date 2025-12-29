@@ -1,7 +1,8 @@
 FROM node:lts-alpine3.23 AS ngbuild
 
+LABEL authors="MostafaOsman"
 LABEL maintainer="mostafa.osman.fathi@gmail.com"
-LABEL desc="backend microservice container for express-url-shortener"
+LABEL desc="Frontend microservice container for express-url-shortener web app"
 
 WORKDIR /app
 
@@ -10,6 +11,8 @@ COPY package*.json ./
 RUN npm install --legacy-peer-deps --no-audit --no-fund
 
 COPY . .
+
+COPY ./deploy_enviroment.ts /app/Frontend/src/environments/environment.ts
 
 RUN npm run build --prod
 
