@@ -1,51 +1,51 @@
 version: "3.9"
 
 services:
+  reverse-proxy:
+    build: ReverseProxy/.
+    container_name: reverse-proxy
+    ports:
+      - target: 80
+        published: 80
+    networks:
+      - frontend-tier
+      - backend-tier
+      - reverse-proxy-tier
+    volumes:
+      - reverse-proxy-cache:/var/cache/nginx
+
+  frontend:
+    build: Frontend/.
+    networks:
+      - frontend-tier
+
   backend:
     build: Backend/.
     container_name: backend
-    ports:
-      - target: 3333
-        published: 3000
-
-
     env_file:
       - Backend/.env
     environment:
       DB_URL: mongodb://mongo:27017/BackendProject
     networks:
-      express-url-shortener:
-      backend-internal-net:
+      - frontend-tier
+      - backend-tier
 
   mongo:
     image: mongo:7
     container_name: mongo
-    labels:
-      authors: "MostafaOsman"
-      desc: "Mongo Database  microservice container for express-url-shortener web app"
-      maintainer: "mostafa.osman.fathi@gmail.com"
     volumes:
-      - type: volume
-        source: mongo_data  # put where you want to save mongodb data
-        target: /data/db
+      - mongo_data:/data/db
     networks:
-      backend-internal-net:
-
-  frontend:
-    build: Frontend/.
-    ports:
-      - target: 80
-        published: 4000
-    networks:
-      express-url-shortener:
+      - backend-tier
 
 networks:
-  express-url-shortener:
-
-  backend-internal-net:
+  frontend-tier:
+      internal: true
+  backend-tier:
     internal: true
+  reverse-proxy-tier:
 
 
 volumes:
   mongo_data:
-    name: mongo_data
+  reverse-proxy-cache:

@@ -12,8 +12,7 @@ RUN npm install --legacy-peer-deps --no-audit --no-fund
 
 COPY . .
 
-
-COPY ./deploy_enviroment.ts /app/Frontend/src/environments/environment.ts
+RUN cp /app/deploy_enviroment.ts /app/src/environments/environment.ts
 
 RUN npm run build --prod
 
