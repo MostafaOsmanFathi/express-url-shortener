@@ -1,0 +1,104 @@
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+error_log /var/log/nginx/error.log;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+    worker_connections 768;
+    # multi_accept on;
+}
+
+http {
+
+    ##
+    # Global Cache Settings
+    ##
+    proxy_cache_path  /var/cache/nginx/frontend  levels=1:2 keys_zone=frontend_cache:10m max_size=1g inactive=60m use_temp_path=off;
+
+    ##
+    # Upstream servers
+    ##
+    upstream frontend {
+        server frontend:80;
+    }
+
+    upstream backend {
+        server  backend:3333;
+    }
+
+    ##
+    # Server Block
+    ##
+    server {
+        listen 80;
+        server_name localhost example.com;
+
+        # Frontend location
+        location / {
+            proxy_pass http://frontend;
+
+            # Forward headers
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+            # Enable cache
+            proxy_cache frontend_cache;
+            proxy_cache_methods GET HEAD;
+            proxy_cache_valid 200 302 10m;   # Cache successful responses for 10 minutes
+            proxy_cache_valid 404 1m;        # Cache 404 responses for 1 minute
+            proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+
+            # Debug header
+            add_header X-Proxy-Cache $upstream_cache_status;
+        }
+
+        # Backend API location
+        location /api/ {
+            proxy_pass http://backend;
+
+            # Forward headers
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+    }
+
+    ##
+    # Basic Settings
+    ##
+    sendfile on;
+    tcp_nopush on;
+    types_hash_max_size 2048;
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    ##
+    # SSL Settings
+    ##
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Dropping SSLv3
+    ssl_prefer_server_ciphers on;
+
+    ##
+    # Logging Settings
+    ##
+    access_log /var/log/nginx/access.log;
+
+    ##
+    # Gzip Settings
+    ##
+    gzip on;
+    # gzip_vary on;
+    # gzip_proxied any;
+    # gzip_comp_level 6;
+    # gzip_buffers 16 8k;
+    # gzip_http_version 1.1;
+    # gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    ##
+    # Include additional configs
+    ##
+    include /etc/nginx/conf.d/*.conf;
+    #include /etc/nginx/sites-enabled/*;
+}
