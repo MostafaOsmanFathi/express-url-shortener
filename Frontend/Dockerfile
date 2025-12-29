@@ -12,6 +12,7 @@ RUN npm install --legacy-peer-deps --no-audit --no-fund
 
 COPY . .
 
+
 COPY ./deploy_enviroment.ts /app/Frontend/src/environments/environment.ts
 
 RUN npm run build --prod
@@ -25,6 +26,6 @@ WORKDIR /app
 COPY --from=ngbuild /app/dist/Frontend/browser /app
 
 
-EXPOSE 80
+EXPOSE 5000
 
-CMD ["serve", "-s", "/app" ,"-p", "80"]
+CMD ["serve", "-s", "/app" ,"-p", "5000"]
