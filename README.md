@@ -1,43 +1,51 @@
 # Docker-Compose Setup for Express-URL-Shortener
 
-This project uses **Docker and Docker Compose** to manage and run the backend, frontend, and MongoDB services in isolated containers.
+This project uses **Docker and Docker Compose** to manage and run the backend, frontend, reverse proxy, and MongoDB services in isolated containers. HTTPS is supported via a self-signed certificate, and Nginx caching can be reset using Docker volumes.
 
 ---
 
 ## Services
 
+### Reverse Proxy
+
+* Built from `./ReverseProxy` folder.
+* Handles HTTPS termination for frontend and backend.
+* Routes `/` to frontend and `/api/` to backend.
+* Supports self-signed certificate creation for local development.
+
 ### Backend
 
 * Built from `./Backend` folder.
-* Exposes port `3333` to the host.
+* Exposes port `3333` internally.
 * Connects to MongoDB using the internal Docker network.
-* For detailed backend documentation, go to [./Backend](./Backend).
+* For detailed backend documentation, see [./Backend](./Backend/README.md).
 
 ### Frontend
 
 * Built from `./Frontend` folder.
-* Exposes port `80` to the host.
-* For detailed frontend documentation, go to [./Frontend](./Frontend).
+* Exposes port `80` internally.
+* For detailed frontend documentation, see [./Frontend](./Frontend/README.md).
 
 ### MongoDB
 
 * Uses the official `mongo:7` image.
 * Stores data in a Docker volume (`mongo_data`).
-* Runs only on the internal Docker network (not exposed to host) for security.
+* Accessible only by the backend container via the internal network.
 
 ---
 
 ## Docker Compose Network
 
-* All services are attached to the same network (`express-url-shortener`) to communicate internally.
-* MongoDB is accessible **only from backend** or other containers in the network.
+* Services communicate internally through Docker networks.
+* MongoDB is internal-only, enhancing security.
+* Reverse proxy allows external HTTPS access to frontend and backend.
 
 ---
 
 ## Setup & Usage
 
-1. Make sure Docker and Docker Compose are installed.
-2. From the project root, run:
+1. Ensure **Docker** and **Docker Compose** are installed.
+2. From the project root, build and start all services:
 
 ```bash
 docker compose up -d --build
@@ -57,12 +65,45 @@ docker compose down
 
 ---
 
-## Notes
+## HTTPS Support
 
-* The MongoDB container is **internal-only**, so you cannot access it from the host.
-* Backend service can access MongoDB using `mongodb://mongo:27017/BackendProject`.
-* No additional network tools like `ping` are included in MongoDB container.
+The reverse proxy supports HTTPS connections. A **dummy self-signed certificate** is provided for testing purposes, but it is recommended to generate and use your own certificate for development or production.
+
+To generate a self-signed certificate for local testing:
+
+```bash
+openssl req -x509 -nodes -days 365 \
+  -newkey rsa:2048 \
+  -keyout ./ReverseProxy/certs/key.pem \
+  -out ./ReverseProxy/certs/cert.pem \
+  -subj "/CN=localhost" \
+  -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
+```
+
+Access the frontend at `https://localhost` and backend APIs via `https://localhost/api/...`.
 
 ---
 
-This setup allows you to quickly spin up a full development environment without manually installing dependencies.
+## Resetting Nginx Cache
+
+The reverse proxy uses a Docker volume (`reverse-proxy-cache`) for caching. To reset the cache:
+
+```bash
+docker compose down
+docker volume rm reverse-proxy-cache
+docker compose up -d --build
+```
+
+This ensures the reverse proxy serves fresh content and updated configuration.
+
+---
+
+## Notes
+
+* Backend connects to MongoDB at `mongodb://mongo:27017/BackendProject`.
+* Frontend should use relative API paths (`/api/...`) to work through the reverse proxy and avoid CORS issues.
+* All services are isolated using Docker networks; MongoDB is not exposed to the host.
+
+---
+
+This setup provides a **ready-to-use development environment** with HTTPS support, easy cache management, and isolated containers for each service.
