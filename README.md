@@ -86,15 +86,21 @@ Access the frontend at `https://localhost` and backend APIs via `https://localho
 
 ## Resetting Nginx Cache
 
-The reverse proxy uses a Docker volume (`reverse-proxy-cache`) for caching. To reset the cache:
+The reverse proxy uses a Docker volume (`express-url-shortener_reverse-proxy-cache`) for caching. To reset the cache:
 
 ```bash
-docker compose down
-docker volume rm reverse-proxy-cache
-docker compose up -d --build
+docker volume rm express-url-shortener_reverse-proxy-cache
 ```
-
 This ensures the reverse proxy serves fresh content and updated configuration.
+
+
+## Resetting Mongo Database
+
+The mongo database uses a Docker volume (`express-url-shortener_mongo_data`) for data. To reset the data:
+
+```bash
+docker volume rm express-url-shortener_mongo_data
+```
 
 ---
 
