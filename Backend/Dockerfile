@@ -3,6 +3,10 @@ FROM node:lts-alpine3.23
 LABEL authors="MostafaOsman"
 LABEL maintainer="mostafa.osman.fathi@gmail.com"
 LABEL desc="Backend microservice container for express-url-shortener web app"
+LABEL org.opencontainers.image.source="https://github.com/MostafaOsmanFathi/express-url-shortener"
+LABEL org.opencontainers.image.title="Express URL Shortener"
+LABEL org.opencontainers.image.description="Backend service for shortening URLs with MongoDB and reverse proxy"
+LABEL org.opencontainers.image.licenses="MIT"
 
 WORKDIR /app
 
