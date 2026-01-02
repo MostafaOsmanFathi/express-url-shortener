@@ -8,21 +8,21 @@ This project uses **Docker and Docker Compose** to manage and run the backend, f
 
 ### Reverse Proxy
 
-* Built from `./ReverseProxy` folder.
+* Built from `./ReverseProxy` folder (for local build) or pulled from GitHub Container Registry.
 * Handles HTTPS termination for frontend and backend.
 * Routes `/` to frontend and `/api/` to backend.
 * Supports self-signed certificate creation for local development.
 
 ### Backend
 
-* Built from `./Backend` folder.
+* Built from `./Backend` folder (for local build) or pulled from GitHub Container Registry.
 * Exposes port `3333` internally.
 * Connects to MongoDB using the internal Docker network.
 * For detailed backend documentation, see [./Backend](./Backend/README.md).
 
 ### Frontend
 
-* Built from `./Frontend` folder.
+* Built from `./Frontend` folder (for local build) or pulled from GitHub Container Registry.
 * Exposes port `80` internally.
 * For detailed frontend documentation, see [./Frontend](./Frontend/README.md).
 
@@ -42,15 +42,40 @@ This project uses **Docker and Docker Compose** to manage and run the backend, f
 
 ---
 
+## Docker Compose Modes
+
+This project supports **two ways to run the services**:
+
+### 1. Pull prebuilt images from GitHub Container Registry
+
+This mode uses images pushed to GHCR and does **not require building locally**. It's faster and useful to show registry/CI-CD workflow.
+
+```bash
+docker compose -f docker-compose.yml up -d
+```
+
+* Pulls images:
+
+    * `ghcr.io/mostafaosmanfathi/express-url-shortener-reverse-proxy:v1.1`
+    * `ghcr.io/mostafaosmanfathi/express-url-shortener-frontend:v1.1`
+    * `ghcr.io/mostafaosmanfathi/express-url-shortener-backend:v1.1`
+
+### 2. Build images locally
+
+This mode builds the Docker images from the project folders. It’s useful to **demonstrate Dockerfile knowledge** or test local changes.
+
+```bash
+docker compose -f docker-compose.build.yml up -d --build
+```
+
+* Builds images from `./ReverseProxy`, `./Frontend`, and `./Backend` folders.
+
+---
+
 ## Setup & Usage
 
 1. Ensure **Docker** and **Docker Compose** are installed.
-2. From the project root, build and start all services:
-
-```bash
-docker compose up -d --build
-```
-
+2. Run one of the Compose modes (see above) depending on whether you want to **pull images** or **build locally**.
 3. Check running containers:
 
 ```bash
@@ -91,8 +116,10 @@ The reverse proxy uses a Docker volume (`express-url-shortener_reverse-proxy-cac
 ```bash
 docker volume rm express-url-shortener_reverse-proxy-cache
 ```
+
 This ensures the reverse proxy serves fresh content and updated configuration.
 
+---
 
 ## Resetting Mongo Database
 
@@ -109,7 +136,8 @@ docker volume rm express-url-shortener_mongo_data
 * Backend connects to MongoDB at `mongodb://mongo:27017/BackendProject`.
 * Frontend should use relative API paths (`/api/...`) to work through the reverse proxy and avoid CORS issues.
 * All services are isolated using Docker networks; MongoDB is not exposed to the host.
+* Use **pull mode** to demonstrate GHCR usage, and **build mode** to demonstrate Dockerfile and local build skills.
 
 ---
 
-This setup provides a **ready-to-use development environment** with HTTPS support, easy cache management, and isolated containers for each service.
+This setup provides a **ready-to-use development environment** with HTTPS support, easy cache management, isolated containers for each service, and the flexibility to run either **prebuilt registry images** or **local builds**.
