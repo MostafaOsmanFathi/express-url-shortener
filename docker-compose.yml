@@ -15,17 +15,19 @@ services:
       - reverse-proxy-cache:/var/cache/nginx
 
   frontend:
-    build: Frontend/.
+    image: ghcr.io/mostafaosmanfathi/express-url-shortener-frontend:v1.1
     networks:
       - frontend-tier
 
   backend:
     image: ghcr.io/mostafaosmanfathi/express-url-shortener-backend:v1.1
     container_name: backend
-    env_file:
-      - Backend/.env
     environment:
       DB_URL: mongodb://mongo:27017/BackendProject
+      JWT_SECRET: SECRET_KEY
+      TOKEN_EXPIRY: 10m
+      PORT: 3333
+      HOST_NAME: 0.0.0.0
     networks:
       - frontend-tier
       - backend-tier
