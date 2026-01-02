@@ -1,6 +1,6 @@
 services:
   reverse-proxy:
-    image: ghcr.io/mostafaosmanfathi/express-url-shortener-reverse-proxy:v1.1
+    build: ReverseProxy/.
     container_name: reverse-proxy
     ports:
       - target: 80
@@ -20,7 +20,7 @@ services:
       - frontend-tier
 
   backend:
-    image: ghcr.io/mostafaosmanfathi/express-url-shortener-backend:v1.1
+    build: Backend/.
     container_name: backend
     env_file:
       - Backend/.env
@@ -40,7 +40,7 @@ services:
 
 networks:
   frontend-tier:
-      internal: true
+    internal: true
   backend-tier:
     internal: true
   reverse-proxy-tier:
