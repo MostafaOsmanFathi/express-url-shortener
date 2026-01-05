@@ -18,13 +18,13 @@ This project uses **Docker and Docker Compose** to manage and run the backend, f
 * Built from `./Backend` folder (for local build) or pulled from GitHub Container Registry.
 * Exposes port `3333` internally.
 * Connects to MongoDB using the internal Docker network.
-* For detailed backend documentation, see [./Backend](./Backend/README.md).
+* For detailed backend documentation, see [Backend](./Backend/README.md).
 
 ### Frontend
 
 * Built from `./Frontend` folder (for local build) or pulled from GitHub Container Registry.
 * Exposes port `80` internally.
-* For detailed frontend documentation, see [./Frontend](./Frontend/README.md).
+* For detailed frontend documentation, see [Frontend](./Frontend/README.md).
 
 ### MongoDB
 
@@ -39,6 +39,8 @@ This project uses **Docker and Docker Compose** to manage and run the backend, f
 * Services communicate internally through Docker networks.
 * MongoDB is internal-only, enhancing security.
 * Reverse proxy allows external HTTPS access to frontend and backend.
+
+![Docker Compose Container Network Architecture](docs/digrams-Container%20Network%20Architecture.drawio.png)
 
 ---
 
